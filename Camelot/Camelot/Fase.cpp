@@ -74,8 +74,10 @@ bool Fase::run()
 				x = evento.motion.x;
 				y = evento.motion.y;
 				cursor->atual(evento.motion.x, evento.motion.y);
+				// GILSON: se o cursor está dentro da área do Deck, altera-se a flag de exibição da imagem grande da carta
 				if ((x >= clickCards.x) && (x <= (clickCards.x + clickCards.w)) &&
 					(y >= clickCards.y) && (y <= (clickCards.y + clickCards.h))) {
+					// Só exibe se o Deck já foi aberto
 					if (posDeckPerso > 0)
 						exibirGde = true;
 				} else {
@@ -140,6 +142,7 @@ void Fase::draw()
 		SDL_BlitSurface(deckPerso, &src, primaria, &dst);
 	}
 
+	// Se for para exibir a imagem da carta do Topo do Deck
 	if (exibirGde) {
 		src.x = posDeckPerso * 280; src.y = 0;
 		src.w = 280; src.h = 400;

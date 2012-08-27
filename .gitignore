@@ -4,3 +4,7 @@
 /Camelot/Debug/*
 /Camelot/Camelot/Debug/*
 
+/Camelot/_ReSharper.Camelot/*
+/Camelot/ipch/*
+*.user
+
