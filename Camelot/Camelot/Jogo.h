@@ -15,7 +15,7 @@ private:
 	Fase *fase;
 	TelaIni *telaIni;
 public:
-	SDL_Surface *primary;
+	SDL_Surface* primary;
 public:
 	Jogo();
 	void run();
