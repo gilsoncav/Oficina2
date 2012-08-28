@@ -13,12 +13,8 @@ class Fase
 private:
 	SDL_Surface *primaria;
 	SDL_Surface *fundo;
-	// Referência ao Deck de personagens em tamanho pequeno. No arquivo de imagem original, elas estão 
-	// tiled na horizontal.
 	SDL_Surface *deckPerso;
-	// Referência ao Deck de personagens em tamanho grande. No arquivo de imagem original, elas estão 
-	// tiled na horizontal.
-	SDL_Surface *deckPersoGde;
+	SDL_Surface *deckPersogran;
 	SDL_Event evento;
 	SDL_Rect src, dst;
 	SDL_Rect clickDeck, clickCards;
@@ -29,10 +25,14 @@ private:
 	int fps;
 	int atualTime;
 	int tempo;
-	// GILSON: ? pelo que entendi, marca a posicao do deck do jogador
 	int posDeckPerso;
-	// GILSON: flag para indicar se a carta que está no topo do baralho deve ser exibida em tamanho ampliado
-	bool exibirGde;
+	int posCardTer;
+	int posCamelot[6];
+	int posCornwall[6];
+	int posPerilousForest[6];
+	bool exibirgran;
+	bool escolhacard;
+	bool mudarPosCard;
 public:
 	Fase(SDL_Surface *Primaria);
 	bool run();

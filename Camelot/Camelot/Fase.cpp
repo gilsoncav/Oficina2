@@ -21,10 +21,11 @@ Fase::Fase(SDL_Surface *Primaria)
 
 	aux = IMG_Load("imagens/persobasicasmin.png");
 	deckPerso = SDL_DisplayFormatAlpha(aux);
-	SDL_FreeSurface(aux);
 
 	aux = IMG_Load("imagens/persobasicas.png");
-	deckPersoGde = SDL_DisplayFormatAlpha(aux);
+	deckPersogran = SDL_DisplayFormatAlpha(aux);
+
+
 	SDL_FreeSurface(aux);
 
 	cursor = new Cursor(512, 384, primaria);
@@ -34,7 +35,16 @@ Fase::Fase(SDL_Surface *Primaria)
 	tempo = fps;
 	atualTime = 0;
 	posDeckPerso = 0;
-	exibirGde = false;
+	posCardTer = 0;
+	exibirgran = false;
+	escolhacard = false;
+	mudarPosCard = false;
+
+	for(int i=0; i<6; i++){
+		posCamelot[i]=-1;
+		posCornwall[i]=-1;
+		posPerilousForest[i]=-1;
+	}
 }
 
 bool Fase::run()
@@ -45,6 +55,21 @@ bool Fase::run()
 	{
 		if (SDL_PollEvent (&evento))
 		{
+			for(int i=0; i<5; i++){
+				if(posCamelot[i]==-1){
+					posCamelot[i] = posCamelot[i+1];
+					posCamelot[i+1] = -1;
+				}
+				if(posCornwall[i]==-1){
+					posCornwall[i] = posCornwall[i+1];
+					posCornwall[i+1] = -1;
+				}
+				if(posPerilousForest[i]==-1){
+					posPerilousForest[i] = posPerilousForest[i+1];
+					posPerilousForest[i+1] = -1;
+				}
+			}
+
 			switch(evento.type)
 			{
 			case SDL_QUIT:
@@ -54,34 +79,115 @@ bool Fase::run()
 			case SDL_MOUSEBUTTONDOWN:
 				x = evento.button.x;
 				y = evento.button.y;
+
 				switch(evento.button.button)
 				{
 				case SDL_BUTTON_LEFT:
 					if ((x >= clickDeck.x) && (x <= (clickDeck.x + clickDeck.w)) &&
 						(y >= clickDeck.y) && (y <= (clickDeck.y + clickDeck.h))) {
-						posDeckPerso++;
+						if(!mudarPosCard)
+							posDeckPerso++;
+						escolhacard = false;
 						if (posDeckPerso > 35) posDeckPerso = 35;
 					}
 					if ((x >= clickCards.x) && (x <= (clickCards.x + clickCards.w)) &&
 						(y >= clickCards.y) && (y <= (clickCards.y + clickCards.h))) {
-						posDeckPerso = 0;
-						exibirGde = false;
+						//posDeckPerso = 0;
+						if(!mudarPosCard)
+							escolhacard = true;
+						exibirgran = false;
 					}
+					if ((x >= 371) && (x <=653) &&
+						(y >= 86) && (y <= 286) && (escolhacard || mudarPosCard)){
+							for(int i=0; i<6; i++){
+								if(posCamelot[i]==-1){
+									if(escolhacard){
+										posCamelot[i]=posDeckPerso;
+										escolhacard = false;
+										posDeckPerso++;
+										break;
+									}
+									if(mudarPosCard){
+										posCamelot[i]=posCardTer;
+										mudarPosCard = false;
+										break;
+									}
+								}
+							}
+							escolhacard = false;
+					}else
+					if ((x >= 654) && (x <=935) &&
+						(y >= 481) && (y <= 681) && (escolhacard || mudarPosCard)){
+							for(int i=0; i<6; i++){
+								if(posCornwall[i]==-1){
+									if(escolhacard){
+										posCornwall[i]=posDeckPerso;
+										escolhacard = false;
+										posDeckPerso++;
+										break;
+									}
+									if(mudarPosCard){
+										posCornwall[i]=posCardTer;
+										mudarPosCard = false;
+										break;
+									}
+								}
+							}
+							escolhacard = false;
+					}else
+					if ((x >= 89) && (x <=371) &&
+						(y >= 481) && (y <= 681) && (escolhacard || mudarPosCard)){
+							for(int i=0; i<6; i++){
+								if(posPerilousForest[i]==-1){
+									if(escolhacard){
+										posPerilousForest[i]=posDeckPerso;
+										escolhacard = false;
+										posDeckPerso++;
+										break;
+									}
+									if(mudarPosCard){
+										posPerilousForest[i]=posCardTer;
+										mudarPosCard = false;
+										break;
+									}
+								}
+							}
+							escolhacard = false;
+					}
+					if(!mudarPosCard && !escolhacard)
+						for(int i=0; i<6; i++){
+							if((x >= 262 + i * src.w) && (x <= 346 + i * src.w) &&
+								(y >= 286) && (y <= 406) && posCamelot[i]!=-1){
+								mudarPosCard = true;
+								posCardTer = posCamelot[i];
+								posCamelot[i] = -1;
+							}
+							if((x >= 545 + i * src.w) && (x <= 629 + i * src.w) &&
+								(y >= 681) && (y <= 801) && posCornwall[i]!=-1){
+								mudarPosCard = true;
+								posCardTer = posCornwall[i];
+								posCornwall[i] = -1;
+							}
+							if((x >= -20 + (i * src.w)) && (x <= 64 + i * src.w) &&
+								(y >= 681) && (y <= 801) && posPerilousForest[i]!=-1){
+								mudarPosCard = true;
+								posCardTer = posPerilousForest[i];
+								posPerilousForest[i] = -1;
+							}
+						}
+
 					break;
 				}
 
 			case SDL_MOUSEMOTION:
+				cursor->atual(evento.motion.x, evento.motion.y);
 				x = evento.motion.x;
 				y = evento.motion.y;
-				cursor->atual(evento.motion.x, evento.motion.y);
-				// GILSON: se o cursor está dentro da área do Deck, altera-se a flag de exibição da imagem grande da carta
-				if ((x >= clickCards.x) && (x <= (clickCards.x + clickCards.w)) &&
-					(y >= clickCards.y) && (y <= (clickCards.y + clickCards.h))) {
-					// Só exibe se o Deck já foi aberto
-					if (posDeckPerso > 0)
-						exibirGde = true;
-				} else {
-					exibirGde = false;
+				if (x >= clickCards.x && x <= (clickCards.x + clickCards.w) && y >= clickCards.y && y <= (clickCards.y + clickCards.h)){
+					if(posDeckPerso > 0)
+						exibirgran = true;
+				}else{
+					exibirgran = false;
 				}
 				break;
 
@@ -128,6 +234,7 @@ void Fase::draw()
 	//texto(m_Primary, vasos, "augie.ttf", 15, 750, 215, 0, 0, 0);
 	//SDL_BlitSurface(m_OSPerso, &m_retOriPerso, m_Primary, &m_retDestPerso);
 
+
 	src.x = src.y = 0;
 	src.w = 84; src.h = 120;
 	dst.x = 400; dst.y = 400;
@@ -141,15 +248,41 @@ void Fase::draw()
 
 		SDL_BlitSurface(deckPerso, &src, primaria, &dst);
 	}
+	for(int i=0; i<6; i++) {
+		if (posCamelot[i] > 0){
+			src.x = posCamelot[i] * 84; src.y = 0;
+			src.w = 84; src.h = 120;
+			dst.x = 262 + (i * src.w); dst.y = 286;
 
-	// Se for para exibir a imagem da carta do Topo do Deck
-	if (exibirGde) {
+			SDL_BlitSurface(deckPerso, &src, primaria, &dst);
+		}
+		if (posCornwall[i] > 0){
+			src.x = posCornwall[i] * 84; src.y = 0;
+			src.w = 84; src.h = 120;
+			dst.x = 545 + (i * src.w); dst.y = 681;
+
+			SDL_BlitSurface(deckPerso, &src, primaria, &dst);
+		}
+		if (posPerilousForest[i] > 0){
+			src.x = posPerilousForest[i] * 84; src.y = 0;
+			src.w = 84; src.h = 120;
+			dst.x = -20 + (i * src.w); dst.y = 681;
+
+			SDL_BlitSurface(deckPerso, &src, primaria, &dst);
+		}
+	}
+
+
+	if (exibirgran){
 		src.x = posDeckPerso * 280; src.y = 0;
 		src.w = 280; src.h = 400;
-		dst.x = 0; dst.y = 0;
-
-		SDL_BlitSurface(deckPersoGde, &src, primaria, &dst);
+		dst.x = 700; dst.y = 50;
+		SDL_BlitSurface(deckPersogran, &src, primaria, &dst);
 	}
+	if(escolhacard || mudarPosCard){
+		texto(primaria, "Posicione a carta em um campo de batalha. ", "augie.ttf", 24, 50, 25, 255, 0, 0);
+	}
+
 
 	cursor->draw();
 
