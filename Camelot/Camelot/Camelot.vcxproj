@@ -80,6 +80,7 @@
     <ClCompile Include="Fase.cpp" />
     <ClCompile Include="Jogo.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PUCVector2.cpp" />
     <ClCompile Include="TelaIni.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -87,6 +88,7 @@
     <ClInclude Include="Cursor.h" />
     <ClInclude Include="Fase.h" />
     <ClInclude Include="Jogo.h" />
+    <ClInclude Include="PUCVector2.h" />
     <ClInclude Include="TelaIni.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
